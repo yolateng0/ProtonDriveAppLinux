@@ -9,26 +9,50 @@ if [[ "${EUID}" -eq 0 ]]; then
 fi
 
 if [[ -z "${HOME:-}" || "${HOME}" == "/" ]]; then
-    echo "[ERREUR] Répertoire HOME absent ou invalide ; désinstallation annulée." >&2
+    echo "[ERREUR] HOME absent ou invalide ; désinstallation annulée." >&2
     exit 1
 fi
 
-UNIT_DIR="${HOME}/.config/systemd/user"
-UNIT_FILE="${UNIT_DIR}/${SERVICE_NAME}"
-MOUNT_POINT="${HOME}/ProtonDrive"
+for cmd in systemctl mountpoint; do
+    if ! command -v "$cmd" >/dev/null 2>&1; then
+        echo "[ERREUR] Commande requise introuvable : $cmd" >&2
+        exit 1
+    fi
+done
 
-if ! command -v systemctl >/dev/null 2>&1; then
-    echo "[ERREUR] systemctl est introuvable ; désinstallation annulée." >&2
+UNIT_FILE="${HOME}/.config/systemd/user/${SERVICE_NAME}"
+MOUNT_POINT="${HOME}/ProtonDrive"
+RCLONE_CONFIG_DIR="${XDG_CONFIG_HOME:-${HOME}/.config}/rclone"
+
+# Vérifications pour éviter une suppression accidentelle d'un chemin inattendu.
+if [[ "$MOUNT_POINT" != "${HOME}/ProtonDrive" ||
+      "$RCLONE_CONFIG_DIR" != "${HOME}/.config/rclone" &&
+      "$RCLONE_CONFIG_DIR" != "${XDG_CONFIG_HOME}/rclone" ]]; then
+    echo "[ERREUR] Chemin de suppression inattendu ; opération annulée." >&2
     exit 1
 fi
 
 if ! systemctl --user show-environment >/dev/null 2>&1; then
     echo "[ERREUR] Impossible de contacter systemd utilisateur." >&2
-    echo "Ouvrez une session utilisateur, puis relancez ce script sans sudo." >&2
+    echo "Ouvrez une session utilisateur et relancez le script sans sudo." >&2
     exit 1
 fi
 
-echo "Arrêt du service ${SERVICE_NAME}…"
+echo "Les éléments suivants seront supprimés :"
+echo "  Service : ${SERVICE_NAME}"
+echo "  Configuration rclone : ${RCLONE_CONFIG_DIR}"
+echo "  Dossier de montage local : ${MOUNT_POINT}"
+echo
+echo "La suppression de la configuration rclone effacera tous les remotes qu'elle contient."
+echo "Vérifiez que ${MOUNT_POINT} ne contient pas de fichiers locaux à conserver."
+read -r -p "Pour confirmer, tapez SUPPRIMER : " answer
+
+if [[ "$answer" != "SUPPRIMER" ]]; then
+    echo "Désinstallation annulée."
+    exit 0
+fi
+
+echo "Arrêt et désactivation du service…"
 systemctl --user stop "$SERVICE_NAME" 2>/dev/null || true
 systemctl --user disable "$SERVICE_NAME" >/dev/null 2>&1 || true
 
@@ -40,14 +64,12 @@ if mountpoint -q -- "$MOUNT_POINT"; then
     elif command -v fusermount >/dev/null 2>&1; then
         fusermount -u -- "$MOUNT_POINT"
     else
-        echo "[ERREUR] Point de montage encore actif et fusermount introuvable." >&2
-        echo "Le fichier du service est conservé. Démontez le point de montage, puis relancez le script." >&2
+        echo "[ERREUR] fusermount3/fusermount introuvable ; suppression annulée." >&2
         exit 1
     fi
 
     if mountpoint -q -- "$MOUNT_POINT"; then
-        echo "[ERREUR] Le point de montage est toujours actif." >&2
-        echo "Le fichier du service est conservé. Démontez-le, puis relancez le script." >&2
+        echo "[ERREUR] Le point est toujours monté ; suppression des données annulée." >&2
         exit 1
     fi
 fi
@@ -59,6 +81,16 @@ fi
 systemctl --user daemon-reload
 systemctl --user reset-failed "$SERVICE_NAME" >/dev/null 2>&1 || true
 
-echo "Désinstallation terminée."
-echo "Le service a été retiré."
-echo "Le dossier ${MOUNT_POINT}, la configuration rclone et les journaux ont été conservés."
+if [[ -d "$RCLONE_CONFIG_DIR" && ! -L "$RCLONE_CONFIG_DIR" ]]; then
+    rm -rf -- "$RCLONE_CONFIG_DIR"
+elif [[ -e "$RCLONE_CONFIG_DIR" || -L "$RCLONE_CONFIG_DIR" ]]; then
+    rm -f -- "$RCLONE_CONFIG_DIR"
+fi
+
+if [[ -d "$MOUNT_POINT" && ! -L "$MOUNT_POINT" ]]; then
+    rm -rf -- "$MOUNT_POINT"
+elif [[ -e "$MOUNT_POINT" || -L "$MOUNT_POINT" ]]; then
+    rm -f -- "$MOUNT_POINT"
+fi
+
+echo "Désinstallation terminée : service, configuration rclone et dossier ProtonDrive supprimés."
