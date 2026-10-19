@@ -10,84 +10,138 @@ UNIT_FILE="$UNIT_DIR/rclone-proton.service"
 SERVICE_NAME="rclone-proton.service"
 USER_NAME="$(id -un)"
 
+RECONFIGURE=0
+
 die() {
-    echo "[ERROR] $*" >&2
+    echo
+    echo "[ERREUR] $*" >&2
     exit 1
 }
 
-[[ "$EUID" -ne 0 ]] || die "Do not run this script with sudo. Run ./install.sh as your regular user."
+usage() {
+    cat <<EOF
+Usage: ./install.sh [OPTION]
 
-command -v sudo >/dev/null 2>&1 || die "sudo is required to install packages."
-command -v systemctl >/dev/null 2>&1 || die "systemctl was not found."
-systemctl --user is-system-running >/dev/null 2>&1 \
-    || die "The systemd user manager is not available in this session."
+Options:
+  --reconfigure  Ouvre rclone config pour créer ou modifier le remote Proton.
+  --help, -h     Affiche ce message.
+EOF
+}
 
-echo "=== Installing rclone for Proton Drive ==="
-echo "Linux user: $USER_NAME"
+case "${1:-}" in
+    "")
+        ;;
+    --reconfigure)
+        RECONFIGURE=1
+        ;;
+    --help|-h)
+        usage
+        exit 0
+        ;;
+    *)
+        usage >&2
+        die "Option inconnue : $1"
+        ;;
+esac
+
+# Ne pas exécuter ce script en root : le remote et le service
+# systemd doivent appartenir au compte utilisateur courant.
+[[ "$EUID" -ne 0 ]] || die "Ne lancez pas ce script avec sudo. Utilisez ./install.sh."
+
+command -v sudo >/dev/null 2>&1 \
+    || die "sudo est nécessaire pour installer les paquets."
+command -v systemctl >/dev/null 2>&1 \
+    || die "systemctl est introuvable."
+systemctl --user show-environment >/dev/null 2>&1 \
+    || die "Le gestionnaire systemd utilisateur n'est pas disponible dans cette session."
+
+echo "=== Installation de rclone pour Proton Drive ==="
+echo "Utilisateur Linux : $USER_NAME"
 echo
 
-echo "[1/5] Installing dependencies..."
+echo "[1/6] Installation des dépendances Debian..."
 sudo apt-get update
 sudo apt-get install -y curl fuse3
 
 echo
-echo "[2/5] Installing or updating rclone..."
+echo "[2/6] Installation ou mise à jour de rclone..."
 INSTALLER="$(mktemp)"
 trap 'rm -f "$INSTALLER"' EXIT
 
-curl --fail --silent --show-error https://rclone.org/install.sh --output "$INSTALLER"
+curl --fail --silent --show-error \
+    https://rclone.org/install.sh \
+    --output "$INSTALLER"
+
 sudo bash "$INSTALLER"
 
 RCLONE_BIN="$(command -v rclone)" \
-    || die "rclone was not found after installation."
-FUSERMOUNT_BIN="$(command -v fusermount3 || command -v fusermount)" \
-    || die "fusermount3 was not found. Check your fuse3 installation."
+    || die "rclone est introuvable après l'installation."
 
+FUSERMOUNT_BIN="$(command -v fusermount3 || command -v fusermount)" \
+    || die "fusermount3 est introuvable. Vérifiez l'installation de fuse3."
+
+echo
+echo "Version de rclone installée :"
 rclone version
 echo
 
+REMOTE_EXISTS=0
 if rclone listremotes | grep -Fxq "${REMOTE_NAME}:"; then
-    echo "[3/5] The '${REMOTE_NAME}:' remote already exists."
-    read -r -p "Open rclone config to review or change it? [y/N] " EDIT_CONFIG
+    REMOTE_EXISTS=1
+fi
+
+RUN_CONFIG=0
+
+if [[ "$RECONFIGURE" -eq 1 ]]; then
+    RUN_CONFIG=1
+elif [[ "$REMOTE_EXISTS" -eq 0 ]]; then
+    RUN_CONFIG=1
+else
+    echo "Le remote '${REMOTE_NAME}:' existe déjà."
+    read -r -p "Voulez-vous ouvrir rclone config pour le modifier ? [y/N] " EDIT_CONFIG
 
     if [[ "$EDIT_CONFIG" =~ ^[Yy]$ ]]; then
-        rclone config
+        RUN_CONFIG=1
     fi
-else
-    echo "[3/5] Configure the Proton Drive remote"
+fi
+
+if [[ "$RUN_CONFIG" -eq 1 ]]; then
+    echo
+    echo "[3/6] Ouverture de l'assistant rclone config"
     cat <<'INFO'
 
-The rclone configuration wizard will open.
+Dans l'assistant rclone :
+  - Pour créer le remote, choisissez l'option de nouveau remote.
+  - Nommez-le : proton
+  - Choisissez le stockage : protondrive
+  - Pour modifier un remote existant, sélectionnez son édition.
+  - Suivez les demandes d'authentification affichées.
+  - Si votre compte Proton utilise deux mots de passe, indiquez aussi
+    le mot de passe de boîte aux lettres dans les options avancées.
 
-In the wizard:
-  1. Create a new remote.
-  2. Name it: proton
-  3. Select Proton Drive storage: protondrive
-  4. Follow the prompts for account and authentication details.
-  5. If your Proton account uses two passwords, also enter the mailbox
-     password in the advanced options.
-
-Enter your account details in the rclone wizard, not in this script.
+Saisissez vos identifiants dans l'assistant rclone, pas dans ce script.
 INFO
     echo
     rclone config
+else
+    echo "[3/6] Configuration existante conservée."
 fi
 
 rclone listremotes | grep -Fxq "${REMOTE_NAME}:" \
-    || die "Remote '${REMOTE_NAME}:' was not found. Run rclone config and name it proton."
+    || die "Remote '${REMOTE_NAME}:' introuvable. Créez-le avec le nom 'proton' dans rclone config."
 
 echo
-echo "[4/5] Testing the remote connection..."
+echo "[4/6] Test de la connexion à Proton Drive..."
 rclone lsd "${REMOTE_NAME}:" \
-    || die "Connection failed. Check your configuration with: rclone config"
+    || die "Connexion à Proton Drive impossible. Vérifiez le remote avec : rclone config"
 
 echo
-echo "[5/5] Creating and starting the systemd user service..."
+echo "[5/6] Création ou mise à jour du service systemd utilisateur..."
 mkdir -p "$MOUNT_POINT" "$CACHE_DIR" "$UNIT_DIR"
 
 cat > "$UNIT_FILE" <<EOF
 [Unit]
-Description=Mount Proton Drive with rclone
+Description=Montage Proton Drive avec rclone
 Wants=network-online.target
 After=network-online.target
 
@@ -113,20 +167,33 @@ WantedBy=default.target
 EOF
 
 systemctl --user daemon-reload
-systemctl --user enable --now "$SERVICE_NAME"
+systemctl --user enable "$SERVICE_NAME"
 
-echo
-read -r -p "Start the service at boot, even when you are not logged in? [y/N] " ENABLE_LINGER
-if [[ "$ENABLE_LINGER" =~ ^[Yy]$ ]]; then
-    sudo loginctl enable-linger "$USER_NAME"
-    echo "Boot-time startup enabled for $USER_NAME."
+if systemctl --user is-active --quiet "$SERVICE_NAME"; then
+    echo "Redémarrage du service existant..."
+    systemctl --user restart "$SERVICE_NAME"
+else
+    echo "Démarrage du service..."
+    systemctl --user start "$SERVICE_NAME"
 fi
 
 echo
-echo "Installation complete."
-echo "Mount point: $MOUNT_POINT"
-echo "Service status:"
+read -r -p "Démarrer le service au démarrage, même sans connexion à votre session ? [y/N] " ENABLE_LINGER
+
+if [[ "$ENABLE_LINGER" =~ ^[Yy]$ ]]; then
+    sudo loginctl enable-linger "$USER_NAME"
+    echo "Démarrage au boot activé pour $USER_NAME."
+fi
+
+echo
+echo "[6/6] État du service..."
 systemctl --user --no-pager --full status "$SERVICE_NAME" || true
 
 echo
-echo "View logs with: journalctl --user -u $SERVICE_NAME -f"
+echo "Installation terminée."
+echo "Point de montage : $MOUNT_POINT"
+echo
+echo "Commandes utiles :"
+echo "  Arrêter       : systemctl --user stop $SERVICE_NAME"
+echo "  Redémarrer    : systemctl --user restart $SERVICE_NAME"
+echo "  Voir les logs : journalctl --user -u $SERVICE_NAME -f"
