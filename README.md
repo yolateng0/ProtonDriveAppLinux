@@ -23,7 +23,7 @@ Clone the repository, then run the script without sudo:
 
 ```bash
 git clone https://github.com/yolateng0/ProtonDriveAppLinux/
-cd rclone-protondrive-debian
+cd ProtonDriveAppLinux
 chmod +x install.sh uninstall.sh
 ./install.sh
 ```
