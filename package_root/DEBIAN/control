@@ -1,0 +1,9 @@
+Package: protondrive-gui-gtk2
+Version: 0.1.0
+Section: utils
+Priority: optional
+Architecture: all
+Depends: python, python-gtk2
+Maintainer: yolateng0 <noreply@users.noreply.github.com>
+Description: Prototype GUI GTK2 pour ProtonDrive
+ Une interface graphique minimale de test basée sur PyGTK (GTK2) pour Debian et dérivés.

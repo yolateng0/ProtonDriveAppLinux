@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=ProtonDrive (GTK2)
+Exec=/usr/bin/protondrive-gui-gtk2
+Icon=protondrive-gui-gtk2
+Type=Application
+Categories=Network;Utility;
+Comment=Prototype graphique ProtonDrive (GTK2)
