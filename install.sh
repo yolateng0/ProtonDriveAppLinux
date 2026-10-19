@@ -241,8 +241,7 @@ After=network-online.target
 
 [Service]
 Type=notify
-ExecStart=$RCLONE_BIN mount ${REMOTE_NAME}: %h/ProtonDrive --config=$RCLONE_CONFIG --vfs-cache-mode=full --vfs-cache-max-size=500M --vfs-cache-max-age=1h --dir-cache-time=5m --protondrive-enable-caching=false --cache-dir=$CACHE_DIR --log-level=INFO --log-file=$LOG_FILE --umask=022
-ExecStop=-$FUSERMOUNT_BIN -u %h/ProtonDrive
+ExecStart=$RCLONE_BIN mount ${REMOTE_NAME}: %h/ProtonDrive --config=$RCLONE_CONFIG --vfs-cache-mode=full --vfs-cache-max-size=500M --vfs-cache-max-age=1h --dir-cache-time=5m --log-level=INFO --log-file=$LOG_FILE
 Restart=on-failure
 RestartSec=10
 TimeoutStopSec=30
