@@ -82,7 +82,11 @@ done
 [[ -r /etc/os-release ]] || die "Cannot identify the operating system."
 # shellcheck disable=SC1091
 . /etc/os-release
-[[ "${ID:-}" == "debian" ]] || die "This script is intended for Debian."
+if [[ "${ID:-}" == "debian" ]] || [[ "${ID_LIKE:-}" =~ debian ]]; then
+    :
+else
+    die "This script is intended for Debian or Debian-based systems."
+fi
 
 for cmd in sudo systemctl; do
     command -v "$cmd" >/dev/null 2>&1 || die "$cmd is required but was not found."
