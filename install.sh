@@ -232,6 +232,10 @@ echo
 echo "[5/6] Creating or updating the systemd user service..."
 mkdir -p "$CACHE_DIR"
 chmod 700 "$CACHE_DIR"
+# Ensure the log file exists with secure permissions before writing the unit file
+mkdir -p "$(dirname "$LOG_FILE")"
+touch "$LOG_FILE"
+chmod 600 "$LOG_FILE"
 
 cat > "$UNIT_FILE" <<EOF
 [Unit]
