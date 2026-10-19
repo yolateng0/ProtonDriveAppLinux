@@ -1,18 +1,16 @@
-# Build and Release Folders
-bin-debug/
-bin-release/
-[Oo]bj/
-[Bb]in/
+# Local rclone configuration and data
+rclone.conf
+rclone.conf.*
+.config/rclone/
+.cache/rclone/
 
-# Other files and folders
-.settings/
+# Environment files and secrets
+.env
+.env.*
+*.secret
+*.token
 
-# Executables
-*.swf
-*.air
-*.ipa
-*.apk
-
-# Project files, i.e. `.project`, `.actionScriptProperties` and `.flexProperties`
-# should NOT be excluded as they contain compiler settings and other important
-# information for Eclipse / Flash Builder.
+# Temporary files
+*.log
+*.tmp
+.DS_Store
