@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=ProtonDrive (GTK3)
+Exec=/usr/bin/protondrive-gui
+Icon=protondrive-gui
+Type=Application
+Categories=Network;Utility;
+Comment=Prototype graphique ProtonDrive (GTK3)
+Terminal=false
