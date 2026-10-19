@@ -1,7 +1,3 @@
-# ProtonDriveAppLinux
-Application Debian ProtonDrive 
-Fork [https://github.com/dadtronics/protondrive-linux](https://github.com/dadtronics/protondrive-linux)
-
 # rclone Proton Drive for Debian
 
 Mount Proton Drive with rclone and a systemd user service. The mount is
@@ -97,11 +93,26 @@ directory.
 - `--allow-other` is not enabled.
 - Proton Drive metadata caching is disabled for this mount.
 - Never commit `rclone.conf`, passwords, or logs that may contain account data.
+## Credits and sources
 
+### Upstream project
 
+This project is a fork/adaptation of
+[ dadtronics/protondrive-linux ](https://github.com/dadtronics/protondrive-linux).
 
-References:
-rclone Proton Drive Docs
-systemd user services
-[dadtronics](https://github.com/dadtronics)
+The original project provides a guide and setup script for mounting Proton Drive
+on Linux with rclone and systemd. This fork adapts the setup for Debian and adds
+installation, repair, reconfiguration, reset, and uninstall options.
 
+### Software and documentation
+
+- [rclone](https://rclone.org/) — Proton Drive backend and mount utility.
+- [rclone Proton Drive documentation](https://rclone.org/protondrive/) — backend configuration and limitations.
+- [systemd user services](https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html) — service management.
+- [FUSE](https://github.com/libfuse/libfuse) — userspace filesystem support used by the mount.
+
+### Trademark and affiliation
+
+Proton Drive is a product and trademark of Proton AG. This is an unofficial,
+community-maintained project and is not affiliated with, endorsed by, or
+supported by Proton AG.
