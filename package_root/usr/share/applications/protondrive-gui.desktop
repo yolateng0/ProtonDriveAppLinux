@@ -4,5 +4,6 @@ Exec=/usr/bin/protondrive-gui
 Icon=protondrive-gui
 Type=Application
 Categories=Network;Utility;
-Comment=Prototype graphique ProtonDrive (GTK3)
+Comment=Prototype GTK3 pour ProtonDrive
 Terminal=false
+StartupNotify=true

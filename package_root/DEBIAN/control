@@ -5,5 +5,6 @@ Priority: optional
 Architecture: all
 Depends: python3, python3-gi, gir1.2-gtk-3.0
 Maintainer: yolateng0 <noreply@users.noreply.github.com>
-Description: Prototype GUI GTK3 pour ProtonDrive
- Une interface graphique minimale de test basée sur PyGObject (GTK3) pour Debian et dérivés.
+Description: GTK3 desktop prototype for ProtonDrive
+ A lightweight GTK3 desktop app for checking the ProtonDrive setup,
+ monitoring the rclone mount and the local configuration under Debian.

@@ -1,41 +1,69 @@
 #!/bin/sh
-set -e
+set -eu
 
-# build.sh — construit les PNG à partir du SVG (si rsvg-convert ou convert disponible)
-# puis construit le .deb depuis package_root/
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+PACKAGE_ROOT="$SCRIPT_DIR"
+REPO_ROOT=$(dirname "$PACKAGE_ROOT")
+APP_BIN="$PACKAGE_ROOT/usr/bin/protondrive-gui"
+APP_PY="$PACKAGE_ROOT/usr/lib/protondrive/gui.py"
+SVG="$PACKAGE_ROOT/usr/share/icons/hicolor/scalable/apps/protondrive-gui.svg"
+ICON_DIR_48="$PACKAGE_ROOT/usr/share/icons/hicolor/48x48/apps"
+ICON_DIR_128="$PACKAGE_ROOT/usr/share/icons/hicolor/128x128/apps"
+ICON_DIR_192="$PACKAGE_ROOT/usr/share/icons/hicolor/192x192/apps"
+DOC_DIR="$PACKAGE_ROOT/usr/share/doc/protondrive-gui"
 
-# rendre exécutable les binaires
-chmod +x package_root/usr/bin/protondrive-gui
-chmod +x package_root/usr/lib/protondrive/gui.py
+chmod 755 "$APP_BIN" "$APP_PY"
+mkdir -p "$ICON_DIR_48" "$ICON_DIR_128" "$ICON_DIR_192" "$DOC_DIR"
 
-# générer des PNG pour les tailles communes si possible
-SVG=package_root/usr/share/icons/hicolor/scalable/apps/protondrive-gui.svg
+cat > "$DOC_DIR/copyright" <<'EOF'
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: protondrive-gui
+Source: https://github.com/yolateng0/ProtonDriveAppLinux
+
+Files: *
+Copyright: 2026, yolateng0
+License: MIT
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ .
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
+EOF
+
 if [ -f "$SVG" ]; then
   if command -v rsvg-convert >/dev/null 2>&1; then
-    echo "Génération PNG avec rsvg-convert"
-    mkdir -p package_root/usr/share/icons/hicolor/48x48/apps
-    mkdir -p package_root/usr/share/icons/hicolor/128x128/apps
-    mkdir -p package_root/usr/share/icons/hicolor/192x192/apps
-    rsvg-convert -w 48 -h 48 "$SVG" -o package_root/usr/share/icons/hicolor/48x48/apps/protondrive-gui.png
-    rsvg-convert -w 128 -h 128 "$SVG" -o package_root/usr/share/icons/hicolor/128x128/apps/protondrive-gui.png
-    rsvg-convert -w 192 -h 192 "$SVG" -o package_root/usr/share/icons/hicolor/192x192/apps/protondrive-gui.png
+    echo "Génération des icônes PNG via rsvg-convert"
+    rsvg-convert -w 48 -h 48 "$SVG" -o "$ICON_DIR_48/protondrive-gui.png"
+    rsvg-convert -w 128 -h 128 "$SVG" -o "$ICON_DIR_128/protondrive-gui.png"
+    rsvg-convert -w 192 -h 192 "$SVG" -o "$ICON_DIR_192/protondrive-gui.png"
   elif command -v convert >/dev/null 2>&1; then
-    echo "Génération PNG avec ImageMagick convert"
-    mkdir -p package_root/usr/share/icons/hicolor/48x48/apps
-    mkdir -p package_root/usr/share/icons/hicolor/128x128/apps
-    mkdir -p package_root/usr/share/icons/hicolor/192x192/apps
-    convert "$SVG" -resize 48x48 package_root/usr/share/icons/hicolor/48x48/apps/protondrive-gui.png
-    convert "$SVG" -resize 128x128 package_root/usr/share/icons/hicolor/128x128/apps/protondrive-gui.png
-    convert "$SVG" -resize 192x192 package_root/usr/share/icons/hicolor/192x192/apps/protondrive-gui.png
+    echo "Génération des icônes PNG via ImageMagick"
+    convert "$SVG" -resize 48x48 "$ICON_DIR_48/protondrive-gui.png"
+    convert "$SVG" -resize 128x128 "$ICON_DIR_128/protondrive-gui.png"
+    convert "$SVG" -resize 192x192 "$ICON_DIR_192/protondrive-gui.png"
   else
-    echo "Aucun outil de conversion SVG->PNG trouvé (rsvg-convert ou convert). Les PNG ne seront pas générés." >&2
+    echo "Aucun outil SVG->PNG trouvé; seules les icônes vectorielles seront incluses." >&2
   fi
 fi
 
-DEBNAME="protondrive-gui_0.1.0_all.deb"
+DEB_NAME="protondrive-gui_0.1.0_all.deb"
+rm -f "$REPO_ROOT/$DEB_NAME"
 
 echo "Construction du paquet .deb..."
-dpkg-deb --build package_root "$DEBNAME"
+dpkg-deb --build "$PACKAGE_ROOT" "$REPO_ROOT/$DEB_NAME"
 
-echo "Paquet créé : $DEBNAME"
-echo "Tester l'installation : sudo apt install -f ./$DEBNAME  (ou sudo dpkg -i ./$DEBNAME && sudo apt -f install)"
+echo "Paquet créé : $REPO_ROOT/$DEB_NAME"
+echo "Installer : sudo dpkg -i $REPO_ROOT/$DEB_NAME || true"
+echo "Puis : sudo apt-get -f install"
