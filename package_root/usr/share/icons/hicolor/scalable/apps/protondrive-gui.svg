@@ -1,6 +1,18 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
-  <rect width="100%" height="100%" fill="#2b90d9" rx="20"/>
-  <circle cx="128" cy="96" r="52" fill="#ffffff" opacity="0.14"/>
-  <text x="50%" y="60%" font-size="96" font-family="Sans" font-weight="bold" fill="#ffffff" text-anchor="middle" dominant-baseline="middle">P</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-label="ProtonDrive icon">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#1a73e8"/>
+      <stop offset="100%" stop-color="#123d86"/>
+    </linearGradient>
+    <linearGradient id="cloud" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#f8fbff"/>
+      <stop offset="100%" stop-color="#dfeeff"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="34" fill="url(#bg)"/>
+  <path d="M88 185c-29 0-52-23-52-51 0-24 17-45 41-50 9-28 34-48 64-48 36 0 67 28 70 64 19 2 35 18 35 39 0 25-21 46-47 46H88z" fill="url(#cloud)"/>
+  <path d="M116 100c-5-19 5-40 22-49 20-10 49-1 58 20 15-6 31 2 38 17 9 19 0 42-20 49H122c-12 0-21-14-17-37z" fill="#eff6ff" opacity="0.96"/>
+  <path d="M112 122h54v45c0 8-6 14-14 14h-26c-8 0-14-6-14-14v-45z" fill="#ffffff" opacity="0.9"/>
+  <path d="M112 148h54" stroke="#2d5edd" stroke-width="7" stroke-linecap="round"/>
+  <path d="M100 190h72c18 0 33 12 38 30H62c5-18 20-30 38-30z" fill="#173f92" opacity="0.86"/>
 </svg>

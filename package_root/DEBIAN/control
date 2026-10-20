@@ -1,9 +1,11 @@
 Package: protondrive-gui
 Version: 0.1.0
-Section: utils
+Section: net
 Priority: optional
 Architecture: all
-Depends: python3, python3-gi, gir1.2-gtk-3.0
+Depends: python3, python3-gi, gir1.2-gtk-3.0, rclone
 Maintainer: yolateng0 <noreply@users.noreply.github.com>
-Description: Prototype GUI GTK3 pour ProtonDrive
- Une interface graphique minimale de test basée sur PyGObject (GTK3) pour Debian et dérivés.
+Homepage: https://github.com/yolateng0/ProtonDriveAppLinux
+Description: ProtonDrive GTK3 desktop dashboard
+ A professional desktop dashboard for checking the Proton Drive backend,
+ local mount status, service state and rclone configuration on Debian.

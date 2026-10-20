@@ -1,10 +1,12 @@
 #!/bin/sh
-set -e
-# Mettre à jour les caches d'icônes et la base de données des applications
+set -eu
+
 if command -v update-desktop-database >/dev/null 2>&1; then
   update-desktop-database -q /usr/share/applications || true
 fi
+
 if command -v gtk-update-icon-cache >/dev/null 2>&1; then
   gtk-update-icon-cache -q -t /usr/share/icons/hicolor || true
 fi
+
 exit 0
