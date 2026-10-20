@@ -1,7 +1,6 @@
 #!/bin/sh
 set -eu
 
-# Avant suppression, mettre à jour les caches
 if command -v gtk-update-icon-cache >/dev/null 2>&1; then
   gtk-update-icon-cache -q -t /usr/share/icons/hicolor || true
 fi

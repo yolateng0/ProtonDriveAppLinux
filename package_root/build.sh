@@ -11,9 +11,10 @@ ICON_DIR_48="$PACKAGE_ROOT/usr/share/icons/hicolor/48x48/apps"
 ICON_DIR_128="$PACKAGE_ROOT/usr/share/icons/hicolor/128x128/apps"
 ICON_DIR_192="$PACKAGE_ROOT/usr/share/icons/hicolor/192x192/apps"
 DOC_DIR="$PACKAGE_ROOT/usr/share/doc/protondrive-gui"
+APPDATA_DIR="$PACKAGE_ROOT/usr/share/metainfo"
 
 chmod 755 "$APP_BIN" "$APP_PY"
-mkdir -p "$ICON_DIR_48" "$ICON_DIR_128" "$ICON_DIR_192" "$DOC_DIR"
+mkdir -p "$ICON_DIR_48" "$ICON_DIR_128" "$ICON_DIR_192" "$DOC_DIR" "$APPDATA_DIR"
 
 cat > "$DOC_DIR/copyright" <<'EOF'
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
@@ -42,19 +43,50 @@ License: MIT
  SOFTWARE.
 EOF
 
+cat > "$DOC_DIR/changelog.Debian" <<'EOF'
+protondrive-gui (0.1.0) unstable; urgency=medium
+
+  * Initial GTK3 prototype for ProtonDrive Debian desktop integration.
+
+ -- yolateng0 <noreply@users.noreply.github.com>  Mon, 20 Oct 2026 07:00:00 +0000
+EOF
+
+cat > "$APPDATA_DIR/protondrive-gui.appdata.xml" <<'EOF'
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>protondrive-gui.desktop</id>
+  <name>ProtonDrive</name>
+  <summary>GTK3 desktop dashboard for ProtonDrive</summary>
+  <description>
+    <p>ProtonDrive is a lightweight GTK3 desktop dashboard for checking the ProtonDrive configuration and mount state on Debian.</p>
+    <p>The application helps verify the rclone remote, the local mount point and the status of the systemd user service.</p>
+  </description>
+  <metadata_license>MIT</metadata_license>
+  <project_license>MIT</project_license>
+  <url type="homepage">https://github.com/yolateng0/ProtonDriveAppLinux</url>
+  <project_group>ProtonDriveAppLinux</project_group>
+  <content_rating type="oars-1.1"/>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/yolateng0/ProtonDriveAppLinux/main/package_root/usr/share/icons/hicolor/scalable/apps/protondrive-gui.svg</image>
+    </screenshot>
+  </screenshots>
+</component>
+EOF
+
 if [ -f "$SVG" ]; then
   if command -v rsvg-convert >/dev/null 2>&1; then
-    echo "Génération des icônes PNG via rsvg-convert"
+    echo "Génération PNG depuis le SVG avec rsvg-convert"
     rsvg-convert -w 48 -h 48 "$SVG" -o "$ICON_DIR_48/protondrive-gui.png"
     rsvg-convert -w 128 -h 128 "$SVG" -o "$ICON_DIR_128/protondrive-gui.png"
     rsvg-convert -w 192 -h 192 "$SVG" -o "$ICON_DIR_192/protondrive-gui.png"
   elif command -v convert >/dev/null 2>&1; then
-    echo "Génération des icônes PNG via ImageMagick"
+    echo "Génération PNG depuis le SVG avec ImageMagick"
     convert "$SVG" -resize 48x48 "$ICON_DIR_48/protondrive-gui.png"
     convert "$SVG" -resize 128x128 "$ICON_DIR_128/protondrive-gui.png"
     convert "$SVG" -resize 192x192 "$ICON_DIR_192/protondrive-gui.png"
   else
-    echo "Aucun outil SVG->PNG trouvé; seules les icônes vectorielles seront incluses." >&2
+    echo "Aucun outil de conversion SVG vers PNG détecté. Les icônes vectorielles seront conservées." >&2
   fi
 fi
 
@@ -62,8 +94,7 @@ DEB_NAME="protondrive-gui_0.1.0_all.deb"
 rm -f "$REPO_ROOT/$DEB_NAME"
 
 echo "Construction du paquet .deb..."
-dpkg-deb --build "$PACKAGE_ROOT" "$REPO_ROOT/$DEB_NAME"
+dpkg-deb --root-owner-group --build "$PACKAGE_ROOT" "$REPO_ROOT/$DEB_NAME"
 
 echo "Paquet créé : $REPO_ROOT/$DEB_NAME"
-echo "Installer : sudo dpkg -i $REPO_ROOT/$DEB_NAME || true"
-echo "Puis : sudo apt-get -f install"
+echo "Commande d'installation : sudo apt install -f ./$DEB_NAME"

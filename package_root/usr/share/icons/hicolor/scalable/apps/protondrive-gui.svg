@@ -1,18 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-label="ProtonDrive icon">
   <defs>
     <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
-      <stop offset="0%" stop-color="#2a7de1"/>
-      <stop offset="100%" stop-color="#1749a5"/>
+      <stop offset="0%" stop-color="#1a73e8"/>
+      <stop offset="100%" stop-color="#123d86"/>
     </linearGradient>
     <linearGradient id="cloud" x1="0" x2="1" y1="0" y2="1">
       <stop offset="0%" stop-color="#f8fbff"/>
       <stop offset="100%" stop-color="#dfeeff"/>
     </linearGradient>
   </defs>
-  <rect width="256" height="256" rx="36" fill="url(#bg)"/>
-  <path d="M96 180c-28 0-50-20-50-46 0-22 16-41 38-46 7-26 31-45 59-45 31 0 58 22 64 52 22 2 39 20 39 43 0 24-20 44-45 44H96z" fill="url(#cloud)" opacity="0.96"/>
-  <path d="M100 92c-7-18 6-46 26-52 20-6 42 8 47 28 15-5 31 4 36 19 6 18-6 35-25 38H120c-16 0-27-17-20-33z" fill="#edf5ff"/>
-  <path d="M120 116h46v62c0 6-5 10-10 10h-26c-6 0-10-4-10-10v-62z" fill="#ffffff" opacity="0.88"/>
-  <path d="M110 148h66" stroke="#2e5de2" stroke-width="8" stroke-linecap="round"/>
-  <path d="M94 188h68c19 0 36 13 41 31H52c5-18 22-31 42-31z" fill="#1d4db4" opacity="0.82"/>
+  <rect width="256" height="256" rx="34" fill="url(#bg)"/>
+  <path d="M88 185c-29 0-52-23-52-51 0-24 17-45 41-50 9-28 34-48 64-48 36 0 67 28 70 64 19 2 35 18 35 39 0 25-21 46-47 46H88z" fill="url(#cloud)"/>
+  <path d="M116 100c-5-19 5-40 22-49 20-10 49-1 58 20 15-6 31 2 38 17 9 19 0 42-20 49H122c-12 0-21-14-17-37z" fill="#eff6ff" opacity="0.96"/>
+  <path d="M112 122h54v45c0 8-6 14-14 14h-26c-8 0-14-6-14-14v-45z" fill="#ffffff" opacity="0.9"/>
+  <path d="M112 148h54" stroke="#2d5edd" stroke-width="7" stroke-linecap="round"/>
+  <path d="M100 190h72c18 0 33 12 38 30H62c5-18 20-30 38-30z" fill="#173f92" opacity="0.86"/>
 </svg>
