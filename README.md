@@ -14,7 +14,7 @@ Mount Proton Drive on Debian using **rclone** and a **systemd user service**. Th
 
 - Mount Proton Drive at `~/ProtonDrive`
 - Manage the mount with a systemd user service
-- Reconfigure or reset the Proton Drive remote
+- Reconfigure, repair, or reset the Proton Drive remote
 - Keep credentials out of the installation script
 
 ## 📋 Requirements
@@ -35,7 +35,7 @@ chmod +x install.sh uninstall.sh
 ./install.sh
 ```
 
-The installer installs rclone and `fuse3`, then opens the rclone configuration wizard.
+The installer checks the environment, installs or updates `rclone` and `fuse3` when needed, and opens the rclone configuration wizard.
 
 ### Configure the Proton remote
 
@@ -55,7 +55,7 @@ After installation, the mount is available at:
 ~/ProtonDrive
 ```
 
-The service starts when you log in. The installer also offers to enable startup when you are logged out.
+The service starts when you log in. The installer can also enable lingering so the mount is available after logout.
 
 ## 🛠️ Useful commands
 
@@ -101,6 +101,12 @@ Repair the installation:
 ./install.sh --repair
 ```
 
+Reinstall or update rclone:
+
+```bash
+./install.sh --reinstall-rclone
+```
+
 Reset the Proton remote:
 
 ```bash
@@ -119,7 +125,7 @@ Run the uninstaller as your regular user:
 ```
 
 > [!CAUTION]
-> The uninstaller removes the service, the rclone configuration directory, and `~/ProtonDrive`. **This deletes all rclone remotes stored in that configuration directory**, not just Proton Drive. Back up any files you want to keep before continuing.
+> The uninstaller removes the user service, the `rclone` configuration directory, and `~/ProtonDrive`. **This deletes all rclone remotes stored in that configuration directory**, not just Proton Drive.
 
 The log and cache directories are not removed by the uninstaller.
 
@@ -137,7 +143,7 @@ The log and cache directories are not removed by the uninstaller.
 This project is a fork/adaptation of
 [ dadtronics/protondrive-linux ](https://github.com/dadtronics/protondrive-linux).
 
-The original project provides a guide and setup script for mounting Proton Drive on Linux with rclone and systemd. This fork adapts the setup for Debian and adds installation, repair, reconfiguration, reset, and uninstall options.
+The original project provides a guide and setup script for mounting Proton Drive on Linux with rclone and systemd. This fork adapts the setup for Debian and adds installation, repair, reconfiguration, and reset helpers.
 
 ### Software and documentation
 
