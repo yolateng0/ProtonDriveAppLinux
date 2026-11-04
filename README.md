@@ -125,7 +125,7 @@ Run the uninstaller as your regular user:
 ```
 
 > [!CAUTION]
-> The uninstaller removes the user service, the `rclone` configuration directory, and `~/ProtonDrive`. **This deletes all rclone remotes stored in that configuration directory**, not just Proton Drive.
+> The uninstaller removes the user service, the `rclone` `~/ProtonDrive` configuration directory. 
 
 The log and cache directories are not removed by the uninstaller.
 
